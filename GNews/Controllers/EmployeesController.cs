@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using GNews.Models;
 using GNews.ViewModels;
@@ -28,7 +25,7 @@ namespace GNews.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = db.Employees.Find(id);
+            Employee employee = db.Employees.Where(x => x.EmployeeID == id).Include(x => x.Clients).FirstOrDefault();
             if (employee == null)
             {
                 return HttpNotFound();
@@ -49,17 +46,27 @@ namespace GNews.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "EmployeeID,EmployeeName")] Employee employee)
+        public ActionResult Create(EmployeeViewModel model)
         {
 
             if (ModelState.IsValid)
             {
-                db.Employees.Add(employee);
+                db.Employees.Add(model.employee);
+                if (model.SelectedClients != null)
+                {
+                    foreach (var x in model.SelectedClients)
+                    {
+                        Client s = new Client { ClientID = x };
+                        db.Clients.Add(s);
+                        db.Clients.Attach(s);
+                        model.employee.Clients.Add(s);
+                    }
+                }
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            return View(employee);
+            return View(model.employee);
         }
 
         // GET: Employees/Edit/5
@@ -69,12 +76,14 @@ namespace GNews.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = db.Employees.Find(id);
-            if (employee == null)
+            EmployeeViewModel model = new EmployeeViewModel();
+            model.employee = db.Employees.Find(id);
+            if (model.employee == null)
             {
                 return HttpNotFound();
             }
-            return View(employee);
+            PopulateDropDownWithClients(model);
+            return View(model);
         }
 
         // POST: Employees/Edit/5
@@ -82,15 +91,26 @@ namespace GNews.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "EmployeeID,EmployeeName")] Employee employee)
+        public ActionResult Edit(EmployeeViewModel model)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(employee).State = EntityState.Modified;
+                db.Entry(model.employee).State = EntityState.Modified;
+                if (model.SelectedClients != null)
+                {
+                    foreach (var x in model.SelectedClients)
+                    {
+                        Client s = new Client { ClientID = x };
+                        db.Clients.Add(s);
+                        db.Clients.Attach(s);
+                        model.employee.Clients.Add(s);
+                    }
+                }
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            return View(employee);
+            PopulateDropDownWithClients(model);
+            return View(model.employee);
         }
 
         // GET: Employees/Delete/5
@@ -117,6 +137,19 @@ namespace GNews.Controllers
             db.Employees.Remove(employee);
             db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        public ActionResult deleteClientFromEmployee(int? clientId, int? employeeId)
+        {
+            if (clientId != null && employeeId != null)
+            {
+                var employee = db.Employees.Find(employeeId);
+                var client = db.Clients.Find(clientId);
+                employee.Clients.Remove(client);
+                db.SaveChanges();
+                return Redirect(Request.UrlReferrer.PathAndQuery);
+            }
+            return RedirectToAction("ServerError", "Error");
         }
 
         private void PopulateDropDownWithClients(EmployeeViewModel model)

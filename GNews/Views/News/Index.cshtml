@@ -1,39 +1,80 @@
-﻿@model IEnumerable<GNews.Models.New>
+﻿@model GNews.ViewModels.NewViewModel
 
-@{
+@*@{
     ViewBag.Title = "Index";
+}*@
+
+<h2>Goal News</h2>
+<hr />
+
+<div class="container">
+    @Html.ActionLink("Nueva noticia", "Create", null, new { @class = "btn btn-default" })
+    @Html.ActionLink("Pedir noticias", "Create", "Requests", null, new { @class = "btn btn-default" })
+    @Html.ActionLink("Exportar a Excel", "ExportToExcel", "News", new { @class = "btn btn-default" })
+</div>
+<br />
+<div class="container">
+    @using (Html.BeginForm("Index", "news", FormMethod.Post, new { @class = "form-inline" }))
+            {
+        @Html.AntiForgeryToken()
+
+        <form class="form-inline">
+            <div class="form-group">
+                <label>Empleado</label>
+                @Html.DropDownListFor(model => model.SelectedEmployee, Model.ListOfEmployees, "", new { @class = "form-control select2" })
+            </div>
+            <div class="form-group">
+                <label>Cliente</label>
+                @Html.DropDownListFor(model => model.SelectedClient, Model.ListOfClients,"", new { @class = "form-control select2" })
+            </div>
+            <div class="form-group">
+                <label>Fecha</label>
+                @Html.DropDownListFor(model => model.SelectedDate, Model.ListOfDates,"", new { @class = "form-control select2" })
+            </div>
+            <div class="form-group">
+                <button class="form-control btn btn-default btn-xs" type="submit" style="height:27px">Filtrar noticias</button>
+            </div>
+        </form>
+    }
+</div>
+<hr />
+<br />
+<div class="container">
+    @foreach (var item in Model.ListOfNews)
+    {
+
+        <div>
+            <span style="font-weight:bolder; font-size:large">
+                @Html.DisplayFor(modelItem => item.Client.ClientName) |
+                @Html.DisplayFor(modelItem => item.Date)
+            </span>
+            @*@if (Request.IsAuthenticated)
+                {*@
+            <span class="pull-right">
+                @Html.ActionLink("Editar", "Edit", new { id = item.NewID }, new { @class = "btn btn-default btn-xs" }) |
+                @Html.ActionLink("Borrar", "Delete", new { id = item.NewID }, new { @class = "btn btn-danger btn-xs" })
+            </span>
+
+
+            <hr style="margin:5px !important;color:black">
+            <div style="line-height:28px">
+                @Html.Raw(HttpUtility.HtmlDecode(item.NewText))
+            </div>
+            <br />
+            <br />
+        </div>
+    }
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".select2").select2({
+                placeholder: "Select",
+                allowClear: true,
+                theme: "classic"
+
+            });
+        });
+    </script>
 }
-
-<h2>Index</h2>
-
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.NewText)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Date)
-        </th>
-        <th></th>
-    </tr>
-
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.NewText)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Date)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.NewID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.NewID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.NewID })
-        </td>
-    </tr>
-}
-
-</table>

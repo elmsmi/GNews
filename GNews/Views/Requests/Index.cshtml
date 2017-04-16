@@ -4,36 +4,51 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
-
+<h2>Peticiones</h2>
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Añadir Petición", "Create", null, new { @class = "btn btn-default" })
 </p>
 <table class="table">
     <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Employee.EmployeeName)
+        </th>
         <th>
             @Html.DisplayNameFor(model => model.RequestText)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Resolved)
         </th>
-        <th></th>
+        <th>Opciones</th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.RequestText)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Resolved)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.RequestID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.RequestID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.RequestID })
-        </td>
-    </tr>
-}
+    @foreach (var item in Model)
+    {
+        var res = "false";
+        if (@item.Resolved == true)
+        {
+            res = "true";
+        }
+        else
+        {
+            res = "false";
+        }
+
+        <tr class="@res">
+            <td>
+                @Html.DisplayFor(modelItem => item.Employee.EmployeeName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RequestText)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Resolved)
+            </td>
+            <td>
+                @Html.ActionLink("Editar", "Edit", new { id = item.RequestID }, new { @class = "btn btn-default btn-xs" })
+                @Html.ActionLink("Borrar", "Delete", new { id = item.RequestID }, new { @class = "btn btn-danger btn-xs" })
+            </td>
+        </tr>
+    }
 
 </table>

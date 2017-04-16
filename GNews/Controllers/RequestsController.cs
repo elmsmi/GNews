@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using GNews.Models;
+using GNews.ViewModels;
 
 namespace GNews.Controllers
 {
@@ -17,28 +18,16 @@ namespace GNews.Controllers
         // GET: Requests
         public ActionResult Index()
         {
-            return View(db.Requests.ToList());
-        }
-
-        // GET: Requests/Details/5
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Request request = db.Requests.Find(id);
-            if (request == null)
-            {
-                return HttpNotFound();
-            }
-            return View(request);
+            var requests = db.Requests.Include("Employee").ToList();
+            return View(requests);
         }
 
         // GET: Requests/Create
         public ActionResult Create()
         {
-            return View();
+            RequestViewModel model = new RequestViewModel();
+            PopulateDropDownWithEmployees(model);
+            return View(model);
         }
 
         // POST: Requests/Create
@@ -46,16 +35,21 @@ namespace GNews.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "RequestID,RequestText,Resolved")] Request request)
+        public ActionResult Create(RequestViewModel model)
         {
+            
             if (ModelState.IsValid)
             {
-                db.Requests.Add(request);
+                Employee s = new Employee { EmployeeID = model.SelectedEmployee };
+                db.Employees.Add(s);
+                db.Employees.Attach(s);
+                model.request.Employee= s;
+                db.Requests.Add(model.request);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-
-            return View(request);
+            PopulateDropDownWithEmployees(model);
+            return View(model);
         }
 
         // GET: Requests/Edit/5
@@ -110,9 +104,16 @@ namespace GNews.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             Request request = db.Requests.Find(id);
+            request.Employee = null;
             db.Requests.Remove(request);
             db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        private void PopulateDropDownWithEmployees(RequestViewModel model)
+        {
+            var EmployeeQuery = (from d in db.Employees orderby d.EmployeeName select d).ToList();
+            model.ListOfEmployees = new SelectList(EmployeeQuery, "EmployeeID", "EmployeeName");
         }
 
         protected override void Dispose(bool disposing)

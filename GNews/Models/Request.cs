@@ -3,11 +3,18 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 
 namespace GNews.Models
 {
     public class Request
     {
+
+        public Request()
+        {
+            Employee = new Employee();
+        }
+
         [Key]
         public int RequestID { get; set; }
 

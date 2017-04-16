@@ -1,42 +1,89 @@
-﻿@model GNews.Models.Employee
+﻿@model GNews.ViewModels.EmployeeViewModel
 
 @{
     ViewBag.Title = "Edit";
 }
 
-<h2>Edit</h2>
+<h2>Editar Empleado</h2>
+<br />
+<div class="col-lg-offset-2" style="font-size:18px;">
+    <table class="table">
+        <tr>
+            <th>
+                Empleado
+            </th>
+            <th>
+                Clientes
+            </th>
+            <th>Opciones</th>
+        </tr>
+        <tr>
+            <td>@Model.employee.EmployeeName</td>
+            <td>
+                @foreach (var item in Model.employee.Clients)
+                {
+                    <div>
+                        @Html.DisplayFor(modelitem => item.ClientName)
+
+
+                    </div>
+                }
+            </td>
+
+            <td>
+                @foreach (var item in Model.employee.Clients)
+                {
+                    <div>
+                        @Html.ActionLink("Borrar cliente", "deleteClientFromEmployee", new { clientId = item.ClientID, employeeId = Model.employee.EmployeeID }, new { @class = "btn btn-danger btn-xs" })
+                    </div>
+                }
+            </td>
+
+        </tr>
+    </table>
+</div>
+
 
 
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    
-    <div class="form-horizontal">
-        <h4>Employee</h4>
+
+    <div class="form-horizontal col-lg-offset-2">
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        @Html.HiddenFor(model => model.EmployeeID)
+        @Html.HiddenFor(model => model.employee.EmployeeID)
 
         <div class="form-group">
-            @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.employee.EmployeeName, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.EmployeeName, "", new { @class = "text-danger" })
+                @Html.EditorFor(model => model.employee.EmployeeName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.employee.EmployeeName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Añadir nuevos clientes", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.ListBoxFor(model => model.SelectedClients, Model.ListOfClients, new { @class = "form-control select2", @multiple = "multiple" })
+                @Html.ValidationMessageFor(model => model.SelectedClients, "", new { @class = "text-danger", required = "required" })
             </div>
         </div>
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Save" class="btn btn-default" />
+                <input type="submit" value="Añadir" class="btn btn-default" />
+                @Html.ActionLink("Volver a la lista", "Index",null, new { @class = "btn btn-default" })
             </div>
         </div>
     </div>
 }
 
-<div>
-    @Html.ActionLink("Back to List", "Index")
-</div>
-
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".select2").select2();
+        });
+    </script>
 }

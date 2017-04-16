@@ -18,7 +18,29 @@
 
 /* Set width on the form input elements since they're 100% wide by default */
 input,
-select,
-textarea {
+select {
     max-width: 280px;
+}
+
+#txtarea {
+    width: 50%;
+}
+
+.jumbotron {
+    margin-top: 50px;
+    font-size: 16px;
+}
+
+h2 {
+    text-align: center;
+    color: #95a5a6;
+    font-weight: bold;
+}
+
+.true {
+    background-color: #d1d1d1;
+}
+
+.false {
+    background-color: #faf88b;
 }

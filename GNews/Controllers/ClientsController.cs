@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using GNews.Models;
+using GNews.ViewModels;
 
 namespace GNews.Controllers
 {
@@ -27,7 +28,7 @@ namespace GNews.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Client client = db.Clients.Find(id);
+            Client client = db.Clients.Where(x => x.ClientID == id).Include(x => x.Employees).FirstOrDefault();
             if (client == null)
             {
                 return HttpNotFound();
@@ -38,7 +39,9 @@ namespace GNews.Controllers
         // GET: Clients/Create
         public ActionResult Create()
         {
-            return View();
+            ClientViewModel model = new ClientViewModel();
+            PopulateDropDownWithEmployees(model);
+            return View(model);
         }
 
         // POST: Clients/Create
@@ -46,16 +49,26 @@ namespace GNews.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "ClientID,ClientName")] Client client)
+        public ActionResult Create(ClientViewModel model)
         {
             if (ModelState.IsValid)
             {
-                db.Clients.Add(client);
+                db.Clients.Add(model.client);
+                if (model.SelectedEmployees != null)
+                {
+                    foreach (var x in model.SelectedEmployees)
+                    {
+                        Employee s = new Employee { EmployeeID = x };
+                        db.Employees.Add(s);
+                        db.Employees.Attach(s);
+                        model.client.Employees.Add(s);
+                    }
+                }
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            return View(client);
+            return View(model.client);
         }
 
         // GET: Clients/Edit/5
@@ -65,12 +78,14 @@ namespace GNews.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Client client = db.Clients.Find(id);
-            if (client == null)
+            ClientViewModel model = new ClientViewModel();
+            model.client = db.Clients.Find(id);
+            if (model.client == null)
             {
                 return HttpNotFound();
             }
-            return View(client);
+            PopulateDropDownWithEmployees(model);
+            return View(model);
         }
 
         // POST: Clients/Edit/5
@@ -78,15 +93,26 @@ namespace GNews.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "ClientID,ClientName")] Client client)
+        public ActionResult Edit(ClientViewModel model)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(client).State = EntityState.Modified;
+                db.Entry(model.client).State = EntityState.Modified;
+                if (model.SelectedEmployees != null)
+                {
+                    foreach (var x in model.SelectedEmployees)
+                    {
+                        Employee s = new Employee { EmployeeID = x };
+                        db.Employees.Add(s);
+                        db.Employees.Attach(s);
+                        model.client.Employees.Add(s);
+                    }
+                }
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            return View(client);
+            PopulateDropDownWithEmployees(model);
+            return View(model.client);
         }
 
         // GET: Clients/Delete/5
@@ -113,6 +139,25 @@ namespace GNews.Controllers
             db.Clients.Remove(client);
             db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        public ActionResult deleteEmployeeFromClient(int? clientId, int? employeeId)
+        {
+            if (clientId != null && employeeId != null)
+            {
+                var employee = db.Employees.Find(employeeId);
+                var client = db.Clients.Find(clientId);
+                client.Employees.Remove(employee);
+                db.SaveChanges();
+                return Redirect(Request.UrlReferrer.PathAndQuery);
+            }
+            return RedirectToAction("ServerError", "Error");
+        }
+
+        private void PopulateDropDownWithEmployees(ClientViewModel model)
+        {
+            var EmployeeQuery = from d in db.Employees orderby d.EmployeeName select d;
+            model.ListOfEmployees = new MultiSelectList(EmployeeQuery, "EmployeeID", "EmployeeName");
         }
 
         protected override void Dispose(bool disposing)

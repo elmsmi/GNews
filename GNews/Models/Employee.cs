@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
 
 namespace GNews.Models
 {
     public class Employee
     {
+        public Employee()
+        {
+            Clients = new HashSet<Client>();
+        }
+
         [Key]
         public int EmployeeID { get; set; }
 

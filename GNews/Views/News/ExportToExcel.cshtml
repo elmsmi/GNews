@@ -1,0 +1,61 @@
+﻿@model IEnumerable<GNews.Models.New>
+@{
+    ViewBag.Title = "Exportar a Excel";
+}
+
+<h2>Exportar tabla a Excel</h2>
+<hr />
+    <div class="container">
+        <div>
+            <button id="export" class="btn btn-default" style="text-align:center;margin-right:5px">Exportar a Excel</button>
+            @Html.ActionLink("Volver a las noticias", "Index", "News", null, new { @class = "btn btn-default", style = "text-align:center" })
+        </div>
+        <br />
+
+        <table id="table2excel" class="table">
+            <tr>
+                <th>
+                    @Html.Label("Cliente")
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NewText)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Date)
+                </th>
+            </tr>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Client.ClientName)
+                    </td>
+                    <td>
+                        @Html.Raw(HttpUtility.HtmlDecode(item.NewText))
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Date)
+                    </td>
+                </tr>
+            }
+
+        </table>
+    </div>
+
+@section Scripts {
+
+    <script src="~/scripts/jquery.table2excel.js"></script>
+
+    <script>
+        $("#export").click(function () {
+            $("#table2excel").table2excel({
+                // exclude CSS class
+                exclude: ".noExl",
+                name: "Worksheet Name",
+                filename: "ExcelFile" //do not include extension
+            });
+        });
+    </script>
+
+}

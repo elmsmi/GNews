@@ -4,23 +4,33 @@
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
-
-<div>
-    <h4>Client</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.ClientName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.ClientName)
-        </dd>
-
-    </dl>
-</div>
+<h2>Detalles del Cliente</h2>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.ClientID }) |
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Editar", "Edit", new { id = Model.ClientID }, new { @class = "btn btn-default" })
+    @Html.ActionLink("Volver a la lista", "Index", null, new { @class = "btn btn-default" })
 </p>
+
+<div class="col-xs-offset-2" style="font-size:18px;">
+    <table class="table">
+        <tr>
+            <th>
+                Cliente
+            </th>
+            <th>
+                Empleados
+            </th>
+        </tr>
+        <tr>
+            <td>@Model.ClientName</td>
+            <td>
+                @foreach (var item in Model.Employees)
+                {
+                    <div>
+                        @Html.DisplayFor(modelitem => item.EmployeeName)
+                    </div>
+                }
+            </td>
+        </tr>
+    </table>
+</div>
+

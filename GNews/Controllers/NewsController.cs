@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using GNews.Models;
+using GNews.ViewModels;
 
 namespace GNews.Controllers
 {
@@ -17,28 +18,20 @@ namespace GNews.Controllers
         // GET: News
         public ActionResult Index()
         {
-            return View(db.News.ToList());
-        }
-
-        // GET: News/Details/5
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            New @new = db.News.Find(id);
-            if (@new == null)
-            {
-                return HttpNotFound();
-            }
-            return View(@new);
+            NewViewModel model = new NewViewModel();
+            PopulateDropDownWithClients(model);
+            PopulateDropDownWithEmployees(model);
+            PopulateDropDownWithDates(model);
+            model.ListOfNews = db.News.Include(x => x.Client).OrderByDescending(x => x.Date).ToList();
+            return View(model);
         }
 
         // GET: News/Create
         public ActionResult Create()
         {
-            return View();
+            NewViewModel model = new NewViewModel();
+            PopulateDropDownWithClients(model);
+            return View(model);
         }
 
         // POST: News/Create
@@ -46,16 +39,20 @@ namespace GNews.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "NewID,NewText,Date")] New @new)
+        public ActionResult Create(NewViewModel model)
         {
             if (ModelState.IsValid)
             {
-                db.News.Add(@new);
+                Client c = db.Clients.Find(model.SelectedClient);
+                db.Clients.Add(c);
+                db.Clients.Attach(c);
+                model.New.Client = c;
+                db.News.Add(model.New);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-
-            return View(@new);
+            PopulateDropDownWithClients(model);
+            return View(model.New);
         }
 
         // GET: News/Edit/5
@@ -115,6 +112,27 @@ namespace GNews.Controllers
             return RedirectToAction("Index");
         }
 
+        public ActionResult ExportToExcel()
+        {
+            return View(db.News.ToList());
+        }
+
+        private void PopulateDropDownWithClients(NewViewModel model)
+        {
+            var ClientQuery = from d in db.Clients orderby d.ClientName select d;
+            model.ListOfClients = new SelectList(ClientQuery, "ClientID", "ClientName");
+        }
+        private void PopulateDropDownWithEmployees(NewViewModel model)
+        {
+            var EmployeeQuery = from d in db.Employees orderby d.EmployeeName select d;
+            model.ListOfEmployees = new SelectList(EmployeeQuery, "EmployeeID", "EmployeeName");
+        }
+
+        private void PopulateDropDownWithDates(NewViewModel model)
+        {
+            var DatesQuery = from d in db.News orderby d.Date select d;
+            model.ListOfDates = new SelectList(DatesQuery, "Date", "Date");
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)

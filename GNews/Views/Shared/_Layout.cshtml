@@ -3,8 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title  Goal News</title>
     @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/css/select2.min.css")
     @Scripts.Render("~/bundles/modernizr")
 
 </head>
@@ -24,7 +25,7 @@
                     <li>@Html.ActionLink("Noticias", "Index", "News")</li>
                     <li>@Html.ActionLink("Empleados", "Index", "Employees")</li>
                     <li>@Html.ActionLink("Clientes", "Index", "Clients")</li>
-                    <li>@Html.ActionLink("Requests", "Index", "Requests")</li>
+                    <li>@Html.ActionLink("Peticiones", "Index", "Requests")</li>
 
                     @*<li>@Html.ActionLink("Home", "Index", "Home")</li>
                         <li>@Html.ActionLink("About", "About", "Home")</li>
@@ -42,8 +43,8 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/scripts/select2.min.js")
     @RenderSection("scripts", required: false)
-    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"></script>
 
 </body>
 </html>
