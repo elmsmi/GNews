@@ -1,61 +1,64 @@
 ﻿@model GNews.ViewModels.NewViewModel
 
-@*@{
-    ViewBag.Title = "Index";
-}*@
-
 <h2>Goal News</h2>
 <hr />
-
 <div class="container">
-    @Html.ActionLink("Nueva noticia", "Create", null, new { @class = "btn btn-default" })
+    @if (Request.IsAuthenticated)
+    {
+        @Html.ActionLink("Nueva noticia", "Create", null, new { @class = "btn btn-primary" })
+    }
     @Html.ActionLink("Pedir noticias", "Create", "Requests", null, new { @class = "btn btn-default" })
     @Html.ActionLink("Exportar a Excel", "ExportToExcel", "News", new { @class = "btn btn-default" })
 </div>
 <br />
 <div class="container">
-    @using (Html.BeginForm("Index", "news", FormMethod.Post, new { @class = "form-inline" }))
-            {
+    @using (Html.BeginForm("Index", "News", FormMethod.Get, new { @class = "form-inline", id = "filterform" }))
+    {
         @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-        <form class="form-inline">
-            <div class="form-group">
-                <label>Empleado</label>
-                @Html.DropDownListFor(model => model.SelectedEmployee, Model.ListOfEmployees, "", new { @class = "form-control select2" })
-            </div>
-            <div class="form-group">
-                <label>Cliente</label>
-                @Html.DropDownListFor(model => model.SelectedClient, Model.ListOfClients,"", new { @class = "form-control select2" })
-            </div>
-            <div class="form-group">
-                <label>Fecha</label>
-                @Html.DropDownListFor(model => model.SelectedDate, Model.ListOfDates,"", new { @class = "form-control select2" })
-            </div>
-            <div class="form-group">
-                <button class="form-control btn btn-default btn-xs" type="submit" style="height:27px">Filtrar noticias</button>
-            </div>
-        </form>
+        <div class="form-group">
+            <label>Empleado</label>
+            @Html.DropDownListFor(model => model.SelectedEmployee, Model.ListOfEmployees, "", new { @class = "form-control select2", onchange = "submitForm()" })
+            @Html.ValidationMessageFor(model => model.SelectedEmployee, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="form-group">
+            <label>Cliente</label>
+            @Html.DropDownListFor(model => model.SelectedClient, Model.ListOfClients, "", new { @class = "form-control select2", onchange = "submitForm()" })
+            @Html.ValidationMessageFor(model => model.SelectedClient, "", new { @class = "text-danger" })
+        </div>
+        @*<div class="form-group">
+            <label>Fecha</label>
+            @Html.DropDownListFor(model => model.SelectedDate.Value, Model.ListOfDates.OrderByDescending(d => d.Value), "", new { @class = "form-control select2", onchange = "submitForm()" })
+            @Html.ValidationMessageFor(model => model.SelectedDate, "", new { @class = "text-danger" })
+        </div>*@
+
+        <div class="form-group">
+            <label>Fecha</label>
+            @Html.DropDownListFor(model => model.fecha, Model.ListOfDates.OrderByDescending(d => d.Value), "", new { @class = "form-control select2", onchange = "submitForm()" })
+            @Html.ValidationMessageFor(model => model.fecha, "", new { @class = "text-danger" })
+        </div>
     }
 </div>
+
 <hr />
 <br />
 <div class="container">
     @foreach (var item in Model.ListOfNews)
     {
-
         <div>
             <span style="font-weight:bolder; font-size:large">
                 @Html.DisplayFor(modelItem => item.Client.ClientName) |
                 @Html.DisplayFor(modelItem => item.Date)
             </span>
-            @*@if (Request.IsAuthenticated)
-                {*@
-            <span class="pull-right">
-                @Html.ActionLink("Editar", "Edit", new { id = item.NewID }, new { @class = "btn btn-default btn-xs" }) |
-                @Html.ActionLink("Borrar", "Delete", new { id = item.NewID }, new { @class = "btn btn-danger btn-xs" })
-            </span>
-
-
+            @if (Request.IsAuthenticated)
+            {
+                <span class="pull-right">
+                    @Html.ActionLink("Editar", "Edit", new { id = item.NewID }, new { @class = "btn btn-default btn-xs" }) |
+                    @Html.ActionLink("Borrar", "Delete", new { id = item.NewID }, new { @class = "btn btn-danger btn-xs" })
+                </span>
+            }
             <hr style="margin:5px !important;color:black">
             <div style="line-height:28px">
                 @Html.Raw(HttpUtility.HtmlDecode(item.NewText))
@@ -67,14 +70,20 @@
 </div>
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+
     <script type="text/javascript">
         $(document).ready(function () {
             $(".select2").select2({
-                placeholder: "Select",
+                placeholder: "Seleccionar",
                 allowClear: true,
                 theme: "classic"
-
             });
         });
+    </script>
+
+    <script type="text/javascript">
+        function submitForm() {
+            $('form').submit();
+        }
     </script>
 }

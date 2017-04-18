@@ -16,12 +16,14 @@ namespace GNews.Controllers
         private ContextClass db = new ContextClass();
 
         // GET: Clients
+        [Authorize]
         public ActionResult Index()
         {
             return View(db.Clients.ToList());
         }
 
         // GET: Clients/Details/5
+        [Authorize]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -37,6 +39,7 @@ namespace GNews.Controllers
         }
 
         // GET: Clients/Create
+        [Authorize]
         public ActionResult Create()
         {
             ClientViewModel model = new ClientViewModel();
@@ -49,6 +52,7 @@ namespace GNews.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult Create(ClientViewModel model)
         {
             if (ModelState.IsValid)
@@ -72,6 +76,7 @@ namespace GNews.Controllers
         }
 
         // GET: Clients/Edit/5
+        [Authorize]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -93,6 +98,7 @@ namespace GNews.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult Edit(ClientViewModel model)
         {
             if (ModelState.IsValid)
@@ -109,13 +115,14 @@ namespace GNews.Controllers
                     }
                 }
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return Redirect(Request.UrlReferrer.PathAndQuery);
             }
             PopulateDropDownWithEmployees(model);
             return View(model.client);
         }
 
         // GET: Clients/Delete/5
+        [Authorize]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -133,6 +140,7 @@ namespace GNews.Controllers
         // POST: Clients/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult DeleteConfirmed(int id)
         {
             Client client = db.Clients.Find(id);
@@ -141,6 +149,7 @@ namespace GNews.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize]
         public ActionResult deleteEmployeeFromClient(int? clientId, int? employeeId)
         {
             if (clientId != null && employeeId != null)
@@ -154,6 +163,7 @@ namespace GNews.Controllers
             return RedirectToAction("ServerError", "Error");
         }
 
+        [NonAction]
         private void PopulateDropDownWithEmployees(ClientViewModel model)
         {
             var EmployeeQuery = from d in db.Employees orderby d.EmployeeName select d;

@@ -7,7 +7,6 @@
     @Styles.Render("~/Content/css")
     @Styles.Render("~/Content/css/select2.min.css")
     @Scripts.Render("~/bundles/modernizr")
-
 </head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
@@ -22,14 +21,13 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Noticias", "Index", "News")</li>
-                    <li>@Html.ActionLink("Empleados", "Index", "Employees")</li>
-                    <li>@Html.ActionLink("Clientes", "Index", "Clients")</li>
-                    <li>@Html.ActionLink("Peticiones", "Index", "Requests")</li>
-
-                    @*<li>@Html.ActionLink("Home", "Index", "Home")</li>
-                        <li>@Html.ActionLink("About", "About", "Home")</li>
-                        <li>@Html.ActionLink("Contact", "Contact", "Home")</li>*@
+                    @if (Request.IsAuthenticated)
+                    {
+                        <li>@Html.ActionLink("Noticias", "Index", "News")</li>
+                        <li>@Html.ActionLink("Empleados", "Index", "Employees")</li>
+                        <li>@Html.ActionLink("Clientes", "Index", "Clients")</li>
+                        <li>@Html.ActionLink("Peticiones", "Index", "Requests")</li>
+                    }
 
                 </ul>
                 @Html.Partial("_LoginPartial")
@@ -40,11 +38,9 @@
         @RenderBody()
         <hr />
     </div>
-
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @Scripts.Render("~/scripts/select2.min.js")
     @RenderSection("scripts", required: false)
-
 </body>
 </html>

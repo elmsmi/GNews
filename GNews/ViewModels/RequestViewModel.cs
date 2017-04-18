@@ -16,6 +16,7 @@ namespace GNews.ViewModels
 
         public SelectList ListOfEmployees { get; set; }
 
+        [Display(Name = "Empleado")]
         public int SelectedEmployee { get; set; }
 
     }

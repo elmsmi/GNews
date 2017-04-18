@@ -16,6 +16,7 @@ namespace GNews.Controllers
         private ContextClass db = new ContextClass();
 
         // GET: Requests
+        [Authorize]
         public ActionResult Index()
         {
             var requests = db.Requests.Include("Employee").ToList();
@@ -53,6 +54,7 @@ namespace GNews.Controllers
         }
 
         // GET: Requests/Edit/5
+        [Authorize]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -72,6 +74,7 @@ namespace GNews.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult Edit([Bind(Include = "RequestID,RequestText,Resolved")] Request request)
         {
             if (ModelState.IsValid)
@@ -84,6 +87,7 @@ namespace GNews.Controllers
         }
 
         // GET: Requests/Delete/5
+        [Authorize]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -101,6 +105,7 @@ namespace GNews.Controllers
         // POST: Requests/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult DeleteConfirmed(int id)
         {
             Request request = db.Requests.Find(id);
@@ -110,6 +115,7 @@ namespace GNews.Controllers
             return RedirectToAction("Index");
         }
 
+        [NonAction]
         private void PopulateDropDownWithEmployees(RequestViewModel model)
         {
             var EmployeeQuery = (from d in db.Employees orderby d.EmployeeName select d).ToList();
