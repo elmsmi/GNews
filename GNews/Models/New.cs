@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace GNews.Models
@@ -12,15 +9,13 @@ namespace GNews.Models
         [Key]
         public int NewID { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "La noticia es requerida")]
         [AllowHtml]
-        [DisplayFormat(NullDisplayText = "No hay noticias")]
         [Display(Name = "Noticia")]
         public string NewText { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "La fecha es requerida")]
         [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         [Display(Name = "Fecha")]
         public DateTime Date { get; set; }
 

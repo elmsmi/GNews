@@ -5,6 +5,7 @@ using System.Net;
 using System.Web.Mvc;
 using GNews.Models;
 using GNews.ViewModels;
+using System;
 
 namespace GNews.Controllers
 {
@@ -14,9 +15,16 @@ namespace GNews.Controllers
 
         // GET: Employees
         [Authorize]
-        public ActionResult Index()
+        public ActionResult Index(string search)
         {
-            return View(db.Employees.ToList());
+            var employees = from x in db.Employees select x;
+
+            if (!String.IsNullOrEmpty(search))
+            {
+                employees = employees.Where(s => s.EmployeeName.Contains(search));
+                                      
+            }
+            return View(employees.OrderBy(s => s.EmployeeName));
         }
 
         // GET: Employees/Details/5
@@ -87,7 +95,9 @@ namespace GNews.Controllers
             {
                 return HttpNotFound();
             }
-            PopulateDropDownWithClients(model);
+            //PopulateDropDownWithClients(model);
+            var ClientQuery = from d in db.Clients orderby d.ClientName select d;
+            model.ListOfClients = new MultiSelectList(ClientQuery, "ClientID", "ClientName",null,null);
             return View(model);
         }
 

@@ -14,30 +14,23 @@
 <div class="container">
     @using (Html.BeginForm("Index", "News", FormMethod.Get, new { @class = "form-inline", id = "filterform" }))
     {
-        @Html.AntiForgeryToken()
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
         <div class="form-group">
             <label>Empleado</label>
             @Html.DropDownListFor(model => model.SelectedEmployee, Model.ListOfEmployees, "", new { @class = "form-control select2", onchange = "submitForm()" })
-            @Html.ValidationMessageFor(model => model.SelectedEmployee, "", new { @class = "text-danger" })
+            @*@Html.ValidationMessageFor(model => model.SelectedEmployee, "", new { @class = "text-danger" })*@
         </div>
 
         <div class="form-group">
             <label>Cliente</label>
             @Html.DropDownListFor(model => model.SelectedClient, Model.ListOfClients, "", new { @class = "form-control select2", onchange = "submitForm()" })
-            @Html.ValidationMessageFor(model => model.SelectedClient, "", new { @class = "text-danger" })
+            @*@Html.ValidationMessageFor(model => model.SelectedClient, "", new { @class = "text-danger" })*@
         </div>
-        @*<div class="form-group">
-            <label>Fecha</label>
-            @Html.DropDownListFor(model => model.SelectedDate.Value, Model.ListOfDates.OrderByDescending(d => d.Value), "", new { @class = "form-control select2", onchange = "submitForm()" })
-            @Html.ValidationMessageFor(model => model.SelectedDate, "", new { @class = "text-danger" })
-        </div>*@
-
         <div class="form-group">
             <label>Fecha</label>
             @Html.DropDownListFor(model => model.fecha, Model.ListOfDates.OrderByDescending(d => d.Value), "", new { @class = "form-control select2", onchange = "submitForm()" })
-            @Html.ValidationMessageFor(model => model.fecha, "", new { @class = "text-danger" })
+            @*@Html.ValidationMessageFor(model => model.fecha, "", new { @class = "text-danger" })*@
         </div>
     }
 </div>
@@ -45,28 +38,36 @@
 <hr />
 <br />
 <div class="container">
-    @foreach (var item in Model.ListOfNews)
+    @if (Model.ListOfNews.Count() != 0)
     {
-        <div>
-            <span style="font-weight:bolder; font-size:large">
-                @Html.DisplayFor(modelItem => item.Client.ClientName) |
-                @Html.DisplayFor(modelItem => item.Date)
-            </span>
-            @if (Request.IsAuthenticated)
-            {
-                <span class="pull-right">
-                    @Html.ActionLink("Editar", "Edit", new { id = item.NewID }, new { @class = "btn btn-default btn-xs" }) |
-                    @Html.ActionLink("Borrar", "Delete", new { id = item.NewID }, new { @class = "btn btn-danger btn-xs" })
+        foreach (var item in Model.ListOfNews)
+        {
+            <div>
+                <span style="font-weight:bolder; font-size:large">
+                    @Html.DisplayFor(modelItem => item.Client.ClientName) |
+                    @Html.DisplayFor(modelItem => item.Date)
                 </span>
-            }
-            <hr style="margin:5px !important;color:black">
-            <div style="line-height:28px">
-                @Html.Raw(HttpUtility.HtmlDecode(item.NewText))
+                @if (Request.IsAuthenticated)
+                {
+                    <span class="pull-right">
+                        @Html.ActionLink("Editar", "Edit", new { id = item.NewID }, new { @class = "btn btn-default btn-xs" }) |
+                        @Html.ActionLink("Borrar", "Delete", new { id = item.NewID }, new { @class = "btn btn-danger btn-xs" })
+                    </span>
+                }
+                <hr style="margin:5px !important;color:black">
+                <div style="line-height:28px">
+                    @Html.Raw(HttpUtility.HtmlDecode(item.NewText))
+                </div>
+                <br />
+                <br />
             </div>
-            <br />
-            <br />
-        </div>
+        }
     }
+    else
+    {
+        <div>No hay ningúna noticia con el filtro aplicado</div>
+    }
+
 </div>
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")

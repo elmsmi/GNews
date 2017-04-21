@@ -1,9 +1,5 @@
 ﻿using GNews.Models;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace GNews.ViewModels
@@ -17,6 +13,7 @@ namespace GNews.ViewModels
         public SelectList ListOfEmployees { get; set; }
 
         [Display(Name = "Empleado")]
+        [Required(ErrorMessage = "El nombre del empleado es requerido")]
         public int SelectedEmployee { get; set; }
 
     }

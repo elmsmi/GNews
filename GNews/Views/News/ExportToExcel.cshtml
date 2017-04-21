@@ -7,7 +7,7 @@
 <hr />
     <div class="container">
         <div>
-            <button id="export" class="btn btn-default" style="text-align:center;margin-right:5px">Exportar a Excel</button>
+            <button id="export" class="btn btn-success" style="text-align:center;margin-right:5px">Descargar</button>
             @Html.ActionLink("Volver a las noticias", "Index", "News", null, new { @class = "btn btn-default", style = "text-align:center" })
         </div>
         <br />
@@ -53,7 +53,7 @@
                 // exclude CSS class
                 exclude: ".noExl",
                 name: "Worksheet Name",
-                filename: "ExcelFile" //do not include extension
+                filename: "ExcelDeNoticias" //do not include extension
             });
         });
     </script>

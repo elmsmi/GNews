@@ -5,9 +5,7 @@ using System.Net;
 using System.Web.Mvc;
 using GNews.Models;
 using GNews.ViewModels;
-using System.Collections.Generic;
 using System;
-using System.Globalization;
 
 namespace GNews.Controllers
 {
@@ -16,10 +14,9 @@ namespace GNews.Controllers
         private ContextClass db = new ContextClass();
 
         // GET: News
+        [HttpGet]
         public ActionResult Index(NewViewModel model)
         {
-
-
             if (model != null)
             {
                 PopulateDropDownWithClients(model);
@@ -28,11 +25,14 @@ namespace GNews.Controllers
 
                 int? empID = model.SelectedEmployee;
                 int? cliID = model.SelectedClient;
-                string date = model.fecha;
+                DateTime? date = null;
+                if (model.fecha != null)
+                {
+                     date = DateTime.ParseExact(model.fecha, "dd/MM/yyyy HH:mm:ss",null);
+                }
 
                 if (model.SelectedEmployee != null)
                 {
-
                     Employee employee = db.Employees.Where(x => x.EmployeeID == empID).Include(x => x.Clients).FirstOrDefault();
                     var lis = db.Clients.Include(x => x.Employees);
 
@@ -42,19 +42,17 @@ namespace GNews.Controllers
                     model.ListOfNews = (from x in db.News
                                         join y in query on x.Client.ClientID equals y.ClientID
                                         where x.Client.ClientID == cliID || cliID == null
-                                        where x.Date.ToString("dd/MM/yy HH:mm:ss") == date || date == null
+                                        where (x.Date) == date || date == null
                                         select x).OrderByDescending(x => x.Date).ToList();
                     return View(model);
-
                 }
 
                 model.ListOfNews = (from x in db.News
                                     where x.Client.ClientID == cliID || cliID == null
-                                    where x.Date.ToString() == date || date == null
-                                    select x).OrderByDescending(x => x.Date).ToList();
+                                    where (x.Date) == date || date == null
+                                    select x).OrderByDescending(x => x.Date).ToList();                      
 
                 return View(model);
-
             }
             else
             {
@@ -64,7 +62,6 @@ namespace GNews.Controllers
                 model.ListOfNews = db.News.Include(x => x.Client).OrderByDescending(x => x.Date).ToList();
                 return View(model);
             }
-
         }
 
         // GET: News/Create
@@ -86,7 +83,7 @@ namespace GNews.Controllers
         {
             if (ModelState.IsValid)
             {
-                Client c = db.Clients.Find(model.SelectedClient);
+                Client c = db.Clients.Find(model.ClientForCreating);
                 db.Clients.Add(c);
                 db.Clients.Attach(c);
                 model.New.Client = c;
@@ -95,7 +92,7 @@ namespace GNews.Controllers
                 return RedirectToAction("Index");
             }
             PopulateDropDownWithClients(model);
-            return View(model.New);
+            return View(model);
         }
 
         // GET: News/Edit/5
@@ -106,12 +103,16 @@ namespace GNews.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            New @new = db.News.Find(id);
-            if (@new == null)
+            NewViewModel model = new NewViewModel();
+            model.New = db.News.Find(id);
+            if (model.New == null)
             {
                 return HttpNotFound();
             }
-            return View(@new);
+            PopulateDropDownWithClients(model);
+            model.ClientForCreating = model.New.Client.ClientID;
+            model.fecha = model.New.Date.ToString("dd/MM/yyyy HH:mm:ss", null);
+            return View(model);
         }
 
         // POST: News/Edit/5
@@ -120,15 +121,23 @@ namespace GNews.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public ActionResult Edit([Bind(Include = "NewID,NewText,Date")] New @new)
+        public ActionResult Edit(NewViewModel model)
         {
+
+            DateTime dt = DateTime.Parse(model.fecha,null);
+            Client c = db.Clients.Find(model.ClientForCreating);
             if (ModelState.IsValid)
             {
-                db.Entry(@new).State = EntityState.Modified;
+                var nn = db.News.Include(x => x.Client).Single(y => y.NewID == model.New.NewID);
+                nn.Client = c;
+                nn.Date = dt;
+                nn.NewText = model.New.NewText;
+
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            return View(@new);
+            PopulateDropDownWithClients(model);
+            return View(model);
         }
 
         // GET: News/Delete/5
@@ -181,7 +190,6 @@ namespace GNews.Controllers
             var DatesQuery = (from d in db.News orderby d.Date select d.Date).Distinct();
             model.ListOfDates = new SelectList(DatesQuery, "Date", "Date");
         }
-        //.ToString(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern)
         protected override void Dispose(bool disposing)
         {
             if (disposing)

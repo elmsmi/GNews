@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using GNews.Models;
 using GNews.ViewModels;
@@ -47,7 +44,7 @@ namespace GNews.Controllers
                 model.request.Employee= s;
                 db.Requests.Add(model.request);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index","News",null);
             }
             PopulateDropDownWithEmployees(model);
             return View(model);

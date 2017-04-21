@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace GNews.Models
 {
@@ -18,11 +13,12 @@ namespace GNews.Models
         [Key]
         public int RequestID { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "La petición es requerida")]
         [Display(Name = "Petición")]
+        [StringLength(300, ErrorMessage = "El tamaño maximo para una petición es 300 characteres")]
         public string RequestText { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "El nombre del empleado es requerido")]
         [Display(Name = "Empleado")]
         public virtual Employee Employee { get; set; }
 

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using GNews.Models;
 using GNews.ViewModels;
@@ -143,7 +140,12 @@ namespace GNews.Controllers
         [Authorize]
         public ActionResult DeleteConfirmed(int id)
         {
-            Client client = db.Clients.Find(id);
+            Client client = db.Clients.Include(b => b.News).Single(a => a.ClientID == id);
+            var newstodelete = from y in db.News where y.Client.ClientID == id select y;
+            foreach (var item in newstodelete)
+            {
+                db.News.Remove(item);
+            }
             db.Clients.Remove(client);
             db.SaveChanges();
             return RedirectToAction("Index");
